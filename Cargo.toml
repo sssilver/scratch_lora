@@ -1,0 +1,36 @@
+[package]
+name = "small-black-box"
+version = "0.1.0"
+authors = ["Areg Harutyunyan <sssilver@gmail.com>"]
+edition = "2021"
+resolver = "2"
+rust-version = "1.77"
+
+[[bin]]
+name = "small-black-box"
+harness = false # do not use the built in cargo test harness -> resolve rust-analyzer errors
+
+[profile.release]
+opt-level = "s"
+
+[profile.dev]
+debug = true    # Symbols are nice and they don't increase the size on Flash
+opt-level = "z"
+
+[features]
+default = []
+
+experimental = ["esp-idf-svc/experimental"]
+
+[dependencies]
+anyhow = "1.0.72"
+bstr = "1.7.0"
+esp-idf-hal = "0.45"
+esp-idf-svc = "0.50"
+esp-idf-sys = "0.36"
+esp32-nimble = "0.9"
+log = "0.4"
+lora-phy = "3.0"
+
+[build-dependencies]
+embuild = "0.33"
