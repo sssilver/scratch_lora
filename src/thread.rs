@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
-use esp_idf_hal::cpu::Core;
-use esp_idf_hal::task::thread::ThreadSpawnConfiguration;
-use esp_idf_sys::{uxTaskGetStackHighWaterMark2, vTaskList};
+use esp_idf_svc::hal::cpu::Core;
+use esp_idf_svc::hal::task::thread::ThreadSpawnConfiguration;
+use esp_idf_svc::sys::{uxTaskGetStackHighWaterMark2, vTaskList};
 use std::thread::JoinHandle;
 
 pub fn spawn<F>(name: &'static str, pin_to_core: Core, thread_body: F) -> Result<JoinHandle<()>>

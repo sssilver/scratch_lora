@@ -8,7 +8,7 @@ use esp32_nimble::{
     utilities::mutex::Mutex, uuid128, BLEAdvertisementData, BLEAdvertising, BLECharacteristic,
     BLEDevice, BLEServer, NimbleProperties,
 };
-use esp_idf_hal::cpu::Core;
+use esp_idf_svc::hal::cpu::Core;
 
 use crate::thread;
 

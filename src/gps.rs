@@ -1,7 +1,7 @@
 use std::sync::mpsc;
 
 use anyhow::Result;
-use esp_idf_hal::{
+use esp_idf_svc::hal::{
     cpu::Core,
     gpio,
     prelude::Peripherals,
@@ -34,10 +34,10 @@ impl Gps {
 
         // Configure UART for GT-U7 GPS module per datasheet
         let config = Config::default()
-            .baudrate(esp_idf_hal::units::Hertz(9600))
-            .data_bits(esp_idf_hal::uart::config::DataBits::DataBits8)
+            .baudrate(esp_idf_svc::hal::units::Hertz(9600))
+            .data_bits(esp_idf_svc::hal::uart::config::DataBits::DataBits8)
             .parity_none()
-            .stop_bits(esp_idf_hal::uart::config::StopBits::STOP1);
+            .stop_bits(esp_idf_svc::hal::uart::config::StopBits::STOP1);
 
         let uart_driver = UartDriver::new(
             peripherals.uart1,
@@ -97,7 +97,7 @@ impl Gps {
                 }
                 Err(err) => {
                     error!("UART read error: {:?}", err);
-                    esp_idf_hal::delay::FreeRtos::delay_ms(100);
+                    esp_idf_svc::hal::delay::FreeRtos::delay_ms(100);
                 }
             }
         }

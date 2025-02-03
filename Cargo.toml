@@ -25,12 +25,11 @@ experimental = ["esp-idf-svc/experimental"]
 [dependencies]
 anyhow = "1.0.72"
 bstr = "1.7.0"
-esp-idf-hal = "0.45"
-esp-idf-svc = "0.50"
-esp-idf-sys = "0.36"
-esp32-nimble = "0.9"
+esp-idf-svc = { version = "0.51", features = ["embassy-time-driver"] }
+esp32-nimble = "0.10"
 log = "0.4"
 lora-phy = "3.0"
+embassy-time = { version = "0.4", features = ["generic-queue-64"] }
 
 [build-dependencies]
 embuild = "0.33"

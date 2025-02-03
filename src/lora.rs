@@ -1,7 +1,7 @@
 use std::sync::mpsc;
 
 use anyhow::Result;
-use esp_idf_hal::{
+use esp_idf_svc::hal::{
     cpu::Core,
     gpio::{InputPin, PinDriver},
     prelude::Peripherals,
@@ -45,7 +45,7 @@ impl Lora {
         let driver = SpiDriver::new(spi, sck, mosi, Some(miso), &SpiDriverConfig::new())?;
 
         let device_driver_config = SpiConfig::default().baudrate(1.MHz().into());
-        let mut device_driver = SpiDeviceDriver::new(driver, Some(cs), &device_driver_config)?;
+        let device_driver = SpiDeviceDriver::new(driver, Some(cs), &device_driver_config)?;
 
         // Create and configure LoRa device
         let config = sx126x::Config {
@@ -56,9 +56,11 @@ impl Lora {
         };
 
         let iv = GenericSx126xInterfaceVariant::new(reset, dio1, busy, None, None).unwrap();
-        let radio_kind = Sx126x::new(&mut device_driver, iv, config);
+        let radio_kind = Sx126x::new(device_driver, iv, config);
 
-        let lora = LoRa::new(radio_kind, false, Delay).unwrap();
+        // NOTE: You need to call the below method in an async method, and you are not in such a one
+        // You might want to consider delaying the instantiation of the LoRa radio, or turn this method into async
+        let lora = LoRa::new(radio_kind, false, embassy_time::Delay); // .unwrap();
 
         Ok(Self {})
     }

@@ -32,6 +32,6 @@ fn main() -> Result<()> {
         // ble_tx.send(ble::Message::Notify { data: telemetry })?;
         // counter += 1;
 
-        esp_idf_hal::delay::FreeRtos::delay_ms(1000);
+        esp_idf_svc::hal::delay::FreeRtos::delay_ms(1000);
     }
 }
