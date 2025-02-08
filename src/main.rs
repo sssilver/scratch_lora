@@ -1,37 +1,48 @@
-use anyhow::Result;
-// use ble::Ble;
-// use gps::Gps;
-use lora::Lora;
+#![no_std]
+#![no_main]
+
+use bt_hci::controller::ExternalController;
+use core::panic::PanicInfo;
+use embassy_executor::Spawner;
+use esp_backtrace as _;
+use esp_hal::{clock::CpuClock, timer::timg::TimerGroup};
+use esp_println as _;
+use esp_wifi::ble::controller::BleConnector;
+use {esp_alloc as _, esp_backtrace as _};
+
+pub const L2CAP_MTU: usize = 247;
 
 mod ble;
-mod gps;
-mod lora;
-mod nmea;
-mod telemetry;
-mod thread;
+mod log;
 
-fn main() -> Result<()> {
-    // It is necessary to call this function once. Otherwise some patches to the runtime
-    // implemented by esp-idf-sys might not link properly. See https://github.com/esp-rs/esp-idf-template/issues/71
-    esp_idf_svc::sys::link_patches();
+#[esp_hal_embassy::main]
+async fn main(_s: Spawner) {
+    let peripherals = esp_hal::init({
+        let mut config = esp_hal::Config::default();
+        config.cpu_clock = CpuClock::max();
+        config
+    });
+    esp_alloc::heap_allocator!(72 * 1024);
+    let timg0 = TimerGroup::new(peripherals.TIMG0);
 
-    // Bind the log crate to the ESP Logging facilities
-    esp_idf_svc::log::EspLogger::initialize_default();
+    let init = esp_wifi::init(
+        timg0.timer0,
+        esp_hal::rng::Rng::new(peripherals.RNG),
+        peripherals.RADIO_CLK,
+    )
+    .unwrap();
 
-    log::info!("hello, small black box!");
+    esp_hal_embassy::init(timg0.timer1);
 
-    // let _ble_tx = Ble::spawn()?;
-    // let _gps_tx = Gps::spawn()?;
-    let _lora_tx = Lora::spawn()?;
+    let bluetooth = peripherals.BT;
+    let connector = BleConnector::new(&init, bluetooth);
 
-    // Keep the main task running
-    // let mut counter = 0;
-    loop {
-        // let telemetry = format!("Counter: {counter}").into_bytes();
+    let controller: ExternalController<_, 20> = ExternalController::new(connector);
 
-        // ble_tx.send(ble::Message::Notify { data: telemetry })?;
-        // counter += 1;
+    ble::run::<_, L2CAP_MTU>(controller).await;
+}
 
-        esp_idf_hal::delay::FreeRtos::delay_ms(1000);
-    }
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    loop {}
 }
