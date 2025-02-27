@@ -4,6 +4,7 @@
 use embassy_executor::Spawner;
 use esp_backtrace as _;
 use esp_hal::gpio::Output;
+use esp_hal::gpio::OutputConfig;
 use esp_hal::gpio::Pin;
 use esp_hal::{clock::CpuClock, timer::timg::TimerGroup};
 use esp_println as _;
@@ -18,12 +19,8 @@ mod log;
 
 #[esp_hal_embassy::main]
 async fn main(spawner: Spawner) {
-    let peripherals = esp_hal::init({
-        let mut config = esp_hal::Config::default();
-        config.cpu_clock = CpuClock::max();
-        config
-    });
-    esp_alloc::heap_allocator!(72 * 1024);
+    let peripherals = esp_hal::init(esp_hal::Config::default().with_cpu_clock(CpuClock::max()));
+    esp_alloc::heap_allocator!(size: 72 * 1024);
     let timer_group = TimerGroup::new(peripherals.TIMG0);
 
     let init = esp_wifi::init(
@@ -60,7 +57,11 @@ async fn main(spawner: Spawner) {
 
     let display = display::DisplayDevice::new(
         i2c,
-        Output::new(peripherals.GPIO21, esp_hal::gpio::Level::High),
+        Output::new(
+            peripherals.GPIO21,
+            esp_hal::gpio::Level::High,
+            OutputConfig::default(),
+        ),
         &mut delay,
     )
     .unwrap();

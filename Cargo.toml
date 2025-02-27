@@ -4,7 +4,6 @@ version = "0.1.0"
 authors = ["Areg Harutyunyan <sssilver@gmail.com>"]
 edition = "2021"
 resolver = "2"
-rust-version = "1.77"
 
 [[bin]]
 name = "small-black-box"
@@ -36,18 +35,18 @@ embassy-time = { version = "0.4.0", features = ["generic-queue-64"] }
 embedded-graphics = { version = "0.8.1", features = ["defmt"] }
 embedded-hal-bus = "0.3.0"
 embedded-hal = "1.0.0"
-esp-alloc = "0.6.0"
-esp-backtrace = { version = "0.15.0", features = ["esp32s3", "defmt", "panic-handler"] }
-esp-println = { version = "0.13.0", features = ["esp32s3", "defmt-espflash"] }
-esp-hal = { version = "0.23.1", features = ["esp32s3", "defmt"] }
-esp-hal-embassy = { version = "0.6.0", features = ["esp32s3"] }
-esp-wifi = { version = "0.12.0", features = ["esp32s3", "ble"] }
-trouble-host = { git = "https://github.com/embassy-rs/trouble", package = "trouble-host" }
+esp-alloc = "0.7.0"
+esp-backtrace = { version = "0.15.1", features = ["esp32s3", "defmt", "panic-handler"] }
+esp-println = { version = "0.13.1", features = ["esp32s3", "defmt-espflash"] }
+esp-hal = { version = "1.0.0-beta.0", features = ["esp32s3", "defmt", "unstable"] }
+esp-hal-embassy = { version = "0.7.0", features = ["esp32s3"] }
+esp-wifi = { version = "0.13.0", features = ["esp32s3", "ble"] }
 heapless = "0.8.0"
 lora-phy = "3.0.1"
 ssd1306 = "0.9.0"
 static_cell = "2.1.0"
 tinybmp = "0.6.0"
+trouble-host = { git = "https://github.com/embassy-rs/trouble", package = "trouble-host", rev = "b6694cf00b602efe9c1c6e639e97218ebf623479" }
 
 [profile.dev.package.esp-wifi]
 opt-level = 3
