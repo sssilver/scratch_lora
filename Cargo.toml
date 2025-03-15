@@ -1,55 +1,89 @@
 [package]
-name = "small-black-box"
+name = "nomad"
 version = "0.1.0"
 authors = ["Areg Harutyunyan <sssilver@gmail.com>"]
 edition = "2021"
 resolver = "2"
 
 [[bin]]
-name = "small-black-box"
+name = "nomad"
 harness = false
 
-[features]
-default = ["defmt-default"]
-defmt-default = []
-defmt-trace = []
-defmt-debug = []
-defmt-info = []
-defmt-warn = []
-defmt-error = []
+[lib] # This ensures `cargo test` compiles `lib.rs`
+name = "nomad"
+path = "src/lib.rs"
 
 [profile.release]
-opt-level = "s"
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
 
 [profile.dev]
+opt-level = 3
 debug = true
-opt-level = "z"
+debug-assertions = false
+overflow-checks = false
+lto = true
+codegen-units = 1
 
 [dependencies]
-bt-hci = { version = "0.2" }
-defmt = "0.3.10"
-embassy-executor = { version = "0.7.0", features = ["defmt", "task-arena-size-16384"] }
-embassy-futures = "0.1.1"
-embassy-sync = "0.6.2"
-embassy-time = { version = "0.4.0", features = ["generic-queue-64"] }
-embedded-graphics = { version = "0.8.1", features = ["defmt"] }
-embedded-hal-bus = "0.3.0"
-embedded-hal = "1.0.0"
-esp-alloc = "0.7.0"
-esp-backtrace = { version = "0.15.1", features = ["esp32s3", "defmt", "panic-handler"] }
-esp-println = { version = "0.13.1", features = ["esp32s3", "defmt-espflash"] }
-esp-hal = { version = "1.0.0-beta.0", features = ["esp32s3", "defmt", "unstable"] }
-esp-hal-embassy = { version = "0.7.0", features = ["esp32s3"] }
-esp-wifi = { version = "0.13.0", features = ["esp32s3", "ble"] }
+# Dependencies used for both ESP32 and native tests
+chrono = { version = "0.4.40", default-features = false }
 heapless = "0.8.0"
-lora-phy = "3.0.1"
-ssd1306 = "0.9.0"
-static_cell = "2.1.0"
-tinybmp = "0.6.0"
-trouble-host = { git = "https://github.com/embassy-rs/trouble", package = "trouble-host", rev = "b6694cf00b602efe9c1c6e639e97218ebf623479" }
+nmea = { version = "0.7.0", default-features = false, features = ["RMC"] }
+defmt = { version = "0.3.10" }
+
+# ESP32-Specific Dependencies (Excluded in Native Tests)
+bt-hci = { version = "0.2", optional = true }
+embassy-embedded-hal = { version = "0.3.0", features = ["defmt"], optional = true }
+embassy-executor = { version = "0.7.0", features = ["defmt", "task-arena-size-16384"], optional = true }
+embassy-futures = { version = "0.1.1", optional = true }
+embassy-sync = { version = "0.6.2", optional = true }
+embassy-time = { version = "0.4.0", features = ["generic-queue-64"], optional = true }
+embedded-graphics = { version = "0.8.1", features = ["defmt"], optional = true }
+embedded-hal-bus = { version = "0.3.0", features = ["async"], optional = true }
+embedded-hal = { version = "1.0.0", optional = true }
+esp-alloc = { version = "0.7.0", optional = true }
+esp-backtrace = { version = "0.15.1", features = ["esp32s3", "defmt", "panic-handler"], optional = true }
+esp-println = { version = "0.13.1", features = ["esp32s3", "defmt-espflash"], optional = true }
+esp-hal = { version = "1.0.0-beta.0", features = ["esp32s3", "defmt", "unstable"], optional = true }
+esp-hal-embassy = { version = "0.7.0", features = ["esp32s3"], optional = true }
+esp-wifi = { version = "0.13.0", features = ["esp32s3", "ble"], optional = true }
+lora-phy = { version = "3.0.1", optional = true }
+ssd1306 = { version = "0.9.0", optional = true }
+static_cell = { version = "2.1.0", optional = true }
+trouble-host = { git = "https://github.com/embassy-rs/trouble", package = "trouble-host", rev = "b6694cf00b602efe9c1c6e639e97218ebf623479", optional = true }
+
+[features]
+default = ["esp32"]
+
+native-testing = ["std", "no-esp32"] # Exclude ESP32 dependencies when testing
+std = [] # Enable `std` conditionally
+no-esp32 = [] # Empty feature just to disable ESP32 functionality when running tests natively
+
+# ESP32-specific dependencies (excluded when `native-testing` is enabled)
+esp32 = [
+    "dep:bt-hci",
+    "dep:embassy-embedded-hal",
+    "dep:embassy-executor",
+    "dep:embassy-futures",
+    "dep:embassy-sync",
+    "dep:embassy-time",
+    "dep:embedded-graphics",
+    "dep:embedded-hal-bus",
+    "dep:embedded-hal",
+    "dep:esp-alloc",
+    "dep:esp-backtrace",
+    "dep:esp-println",
+    "dep:esp-hal",
+    "dep:esp-hal-embassy",
+    "dep:esp-wifi",
+    "dep:lora-phy",
+    "dep:ssd1306",
+    "dep:static_cell",
+    "dep:trouble-host"
+]
 
 [profile.dev.package.esp-wifi]
 opt-level = 3
-
-[build-dependencies]
-embuild = "0.33"

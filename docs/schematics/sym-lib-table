@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "Visor")(type "KiCad")(uri "${KIPRJMOD}/Visor.kicad_sym")(options "")(descr ""))
+)

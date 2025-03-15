@@ -1,6 +1,6 @@
 use crate::{
     ble::state::{BleStateRx, BLE_STATE},
-    gps::{positioning::Positioning, GpsStateRx, GPS_STATE},
+    gnss::{positioning::GnssPositioning, watch::GnssStateRx, watch::GNSS_WATCH},
 };
 use core::fmt::Write;
 use embassy_futures::select::{select, Either};
@@ -14,16 +14,16 @@ pub struct DisplayController {
     display: DisplayDevice<'static>,
 
     ble_rx: BleStateRx,
-    gps_rx: GpsStateRx,
+    gps_rx: GnssStateRx,
 
     is_ble_connected: bool,
-    positioning: Option<Positioning>,
+    positioning: Option<GnssPositioning>,
 
     last_update: Option<embassy_time::Instant>,
 }
 
 impl DisplayController {
-    pub fn new(display: DisplayDevice<'static>, ble_rx: BleStateRx, gps_rx: GpsStateRx) -> Self {
+    pub fn new(display: DisplayDevice<'static>, ble_rx: BleStateRx, gps_rx: GnssStateRx) -> Self {
         Self {
             display,
             ble_rx,
@@ -166,7 +166,7 @@ impl DisplayController {
 pub async fn start(mut display: DisplayDevice<'static>) {
     defmt::info!("Starting display controller");
 
-    match (BLE_STATE.receiver(), GPS_STATE.receiver()) {
+    match (BLE_STATE.receiver(), GNSS_WATCH.receiver()) {
         (Some(ble_rx), Some(gps_rx)) => {
             let display_controller = DisplayController::new(display, ble_rx, gps_rx);
 
